@@ -13,3 +13,6 @@ assets/__pycache__
 # 忽略环境配置 (如果有)
 .env
 venv/
+
+# 忽略用户数据库
+users.db

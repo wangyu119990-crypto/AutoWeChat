@@ -1,40 +1,46 @@
 # -*- coding: utf-8 -*-
-import requests
-import webbrowser
-import time
+# 文件名: test_bot.py
+# 这是一个纯测试脚本，运行它来验证自动化功能
 
-url = "http://localhost:8080/api/process"
+import os
+from wechat_rpa import WeChatBot
 
-# 您提供的真实长文本
-content = """Meta 或大规模采用 TPU，Alphabet 走高而英伟达承压，算力格局出现新的不确定性
-据 The Information 报道，Meta 正与 Google 洽谈在 2027 年起于自家数据中心大规模采用 Google 的 TPU，投入规模可能达到数十亿美元，同时评估自明年起通过 Google Cloud 租用 TPU 集群。当前 Meta 的训练基础设施主要依赖英伟达 H 系列 GPU，而 Google 近期已与 Anthropic 达成最多 100 万颗 TPU 的供应协议。如果此次交易落地，将使 TPU 成为 Meta 在英伟达之外的第二条算力供应链。
-消息发布后，Alphabet 盘后上涨约 2.7%，英伟达下跌约 2.7%，市场将其视为 AI 加速器供给格局可能出现松动的迹象。双方均未置评。
+# ================= 配置区 =================
+# 1. 这里填一段假的 HTML，或者去你的 output 文件夹里找一个生成的 news.html 用记事本打开复制进来
+TEST_HTML = """
+<p>大家好，这是自动化发布的测试。</p>
+<p style="color:red;">如果你看到这行红字，说明排版保留成功了！</p>
+"""
 
-Insights
-这一动向背后反映出大型模型开发者对算力成本结构和供应链风险的重新评估。随着模型规模扩大、推理流量增长，完全依赖英伟达 GPU 使 Meta 在产能、价格与交付周期上承受不确定性。引入 TPU 可能形成跨架构调度的长期方案，使训练与推理在不同阶段分流，以提高整体资源的可控性。
-从供给侧看，TPU 若在 Meta 的生产环境中获得验证，将推动其从 Google 内部产品走向更加产业化的角色，补上 GPU 与各类 ASIC 之间的第二条主流路线。这对 Google 意味着技术栈的进一步外部化：TPU 的软件层、编译器与执行框架需要适配跨公司 workload，而不再仅围绕自家 Gemini 模型优化，可能加速 OpenXLA 等工具链的开放化演进。
-对于行业结构，这一事件强化了“多架构并存”的趋势。2023–2024 年 GPU 一统格局开始松动，头部公司正把算力视为类似能源的基础资源，需要通过多路线降低单厂商风险。未来几年，英伟达仍保持主导，但 TPU、自研加速器和专用 ASIC 可能共同构成供给体系，使算力竞争从“芯片之争”转向“硬件架构 + 编译器层 + 模型路线”的综合竞争框架。
-整体来看，Meta 与 Google 的接洽不仅是一项采购评估，更是 AI 基础设施在成本、可扩展性与供应链治理层面的结构性调整。它提示行业正在从单一硬件范式转向更分散、更可组合的计算架构，尤其在大模型时代训练成本边际变化愈发敏感的背景下，这类多架构策略可能成为主流。"""
+# 2. 这里必须填一个你电脑上真实存在的图片路径！
+# 建议直接用你项目里 output 文件夹下的某张图
+# 例如: r"C:\你的项目路径\output\cover.jpg" (Windows路径前加r)
+# 或者直接写相对路径，如果你的 test_bot.py 和 output 文件夹在同一级
+# 确保你的代码里是这一行：
+TEST_COVER_PATH = os.path.join("output", "cover.jpg")
 
-data = {
-    "text": content,
-    # 强制指定关键词，确保封面图是 Meta 和 Google 的 Logo
-    "keywords": ["Meta", "Google"] 
-}
+# =========================================
 
-print("🤖 正在提交任务 (Meta x Google)...")
+def run_test():
+    # 检查图片是否存在，不然Playwright会报错
+    if not os.path.exists(TEST_COVER_PATH):
+        print(f"❌ 错误：找不到测试图片 -> {TEST_COVER_PATH}")
+        print("💡 请先去你的网页版生成一张图，或者随便找张图改名为 cover.jpg 放到 output 文件夹里。")
+        return
 
-try:
-    resp = requests.post(url, json=data)
+    print("🚀 开始测试自动化机器人...")
+    print("----------------------------------")
     
-    if resp.status_code == 200:
-        result = resp.json()
-        print("\n✅ 生成成功！")
-        print(f"🖼 封面图: {result['cover_url']}")
-        print(f"📄 公众号文章: {result['html_url']}")
-        webbrowser.open(result['html_url'])
-    else:
-        print("❌ 服务器报错:", resp.text)
+    # 初始化机器人 (headless=False 表示你会看到浏览器弹出来)
+    bot = WeChatBot(headless=False)
     
-except Exception as e:
-    print("❌ 连接错误:", e)
+    # 运行发布逻辑
+    bot.run_publish(
+        title="【测试】这是自动化发布的标题",
+        author="INP助手",
+        content_html=TEST_HTML,
+        cover_path=os.path.abspath(TEST_COVER_PATH) # 转换为绝对路径更稳
+    )
+
+if __name__ == "__main__":
+    run_test()
